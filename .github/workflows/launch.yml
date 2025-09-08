@@ -1,0 +1,26 @@
+name: UPLOADING
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+jobs:
+    Server-Upload:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+            - name: Install SSH Client and sshpass
+              run: sudo apt-get install -y openssh-client sshpass
+
+            - name: Uploading through FTP
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+              with:
+                  server: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
+                  password: ${{ secrets.PASSWORD }}
+                  port: ${{ secrets.PORT }}
+                  protocol: ftp
+                  server-dir: ${{ secrets.DIR }}
