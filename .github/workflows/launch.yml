@@ -9,11 +9,10 @@ on:
 jobs:
     Server-Upload:
         runs-on: ubuntu-latest
-
         steps:
             - uses: actions/checkout@v4
-            - name: Install SSH Client and sshpass
-             uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+            - name: Uploading through FTP
+  uses: SamKirkland/FTP-Deploy-Action@v4.3.5
   with:
     server: ${{ secrets.HOST }}
     username: ${{ secrets.USERNAME }}
@@ -27,3 +26,5 @@ jobs:
     exclude: |
       **/.git*
       **/.github*
+
+            
