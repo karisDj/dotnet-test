@@ -39,6 +39,6 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: 22
-          protocol: sftp   # change to ftp if your server doesn’t support sftp
+          protocol: ftp   # change to ftp if your server doesn’t support sftp
           server-dir: ${{ secrets.DIR }}
           log-level: verbose
