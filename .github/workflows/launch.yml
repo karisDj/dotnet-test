@@ -1,30 +1,58 @@
-name: UPLOADING
+name: Deploy to Server
 
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-    Server-Upload:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-            - name: Uploading through FTP
-  uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-  with:
-    server: ${{ secrets.HOST }}
-    username: ${{ secrets.USERNAME }}
-    password: ${{ secrets.PASSWORD }}
-    port: 21
-    protocol: ftp
-    server-dir: ${{ secrets.DIR }}
-    state-name: .ftp-deploy-sync-state.json
-    dangerous-clean-slate: true
-    log-level: verbose
-    exclude: |
-      **/.git*
-      **/.github*
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout repository
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history (needed for git push later)
 
-            
+      # 2. Set up Git identity (so commits work in GitHub Actions)
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # 3. Pull latest changes to keep workflow in sync
+      - name: Git Pull
+        run: git pull origin main
+
+      # 4. Make changes (optional step - add your build commands here)
+      # Example: npm run build or dotnet publish
+      - name: Example Build Step
+        run: echo "Build commands go here"
+
+      # 5. Commit changes (only if files are modified, avoids empty commits)
+      - name: Commit changes
+        run: |
+          git add -A
+          git diff --cached --quiet || git commit -m "Auto-update from GitHub Actions"
+
+      # 6. Push changes back to main branch
+      - name: Push changes
+        run: git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 7. Deploy via SFTP (recommended) or FTP
+      - name: Upload to Server
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: 22
+          protocol: sftp    # change to ftp if you must
+          server-dir: ${{ secrets.DIR }}
+          log-level: verbose
